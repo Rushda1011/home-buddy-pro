@@ -76,6 +76,15 @@ const stats = [
 ]
 
 const Index = () => {
+  const scrollToContact = () => {
+    const el = document.getElementById("contact")
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" })
+      // Keep URL shareable
+      if (window.location.hash !== "#contact") window.history.replaceState(null, "", "#contact")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar variant="landing" />
@@ -268,8 +277,13 @@ const Index = () => {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="xl" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
-                  <a href="#contact">Contact Sales</a>
+                <Button
+                  variant="outline"
+                  size="xl"
+                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                  onClick={scrollToContact}
+                >
+                  Contact Sales
                 </Button>
               </div>
             </div>

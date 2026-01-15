@@ -261,7 +261,7 @@ const Index = () => {
               <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
                 Join hundreds of hostels already using HostelHub to streamline their operations and improve student satisfaction.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-20">
                 <Button variant="accent" size="xl" asChild>
                   <Link to="/register">
                     Start Free Trial
@@ -273,8 +273,8 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-foreground/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-foreground/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-foreground/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-foreground/10 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
           </div>
         </div>
       </section>

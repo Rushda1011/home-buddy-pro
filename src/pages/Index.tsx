@@ -293,8 +293,148 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Contact Section */}
+      <section id="contact" className="py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">Contact Us</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Get in Touch
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Have questions about HostelHub? Our team is here to help you find the perfect solution for your hostel management needs.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {/* Contact Form */}
+            <div className="rounded-2xl bg-card p-8 shadow-elegant border border-border/50">
+              <h3 className="text-xl font-semibold text-foreground mb-6">Send us a Message</h3>
+              <form className="space-y-5">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="firstName" className="text-sm font-medium text-foreground">First Name</label>
+                    <input
+                      id="firstName"
+                      type="text"
+                      placeholder="John"
+                      className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="lastName" className="text-sm font-medium text-foreground">Last Name</label>
+                    <input
+                      id="lastName"
+                      type="text"
+                      placeholder="Doe"
+                      className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="subject" className="text-sm font-medium text-foreground">Subject</label>
+                  <select
+                    id="subject"
+                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  >
+                    <option value="">Select a topic</option>
+                    <option value="sales">Sales Inquiry</option>
+                    <option value="demo">Request a Demo</option>
+                    <option value="support">Technical Support</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="message" className="text-sm font-medium text-foreground">Message</label>
+                  <textarea
+                    id="message"
+                    rows={4}
+                    placeholder="Tell us about your hostel management needs..."
+                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors resize-none"
+                  />
+                </div>
+                <Button type="submit" variant="hero" size="lg" className="w-full">
+                  Send Message
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-8">
+              <div className="rounded-2xl bg-card p-8 shadow-elegant border border-border/50">
+                <h3 className="text-xl font-semibold text-foreground mb-6">Contact Information</h3>
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0">
+                      <Building2 className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-foreground">Office Address</div>
+                      <div className="text-muted-foreground text-sm mt-1">
+                        123 Tech Park, Innovation Hub<br />
+                        Bangalore, Karnataka 560001
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0">
+                      <Bell className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-foreground">Phone</div>
+                      <div className="text-muted-foreground text-sm mt-1">
+                        +91 80 1234 5678<br />
+                        Mon - Fri, 9:00 AM - 6:00 PM IST
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0">
+                      <MessageSquare className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-foreground">Email</div>
+                      <div className="text-muted-foreground text-sm mt-1">
+                        sales@hostelhub.com<br />
+                        support@hostelhub.com
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-card p-8 shadow-elegant border border-border/50">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-success" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground">Quick Response</div>
+                    <div className="text-sm text-muted-foreground">We typically respond within 2 hours</div>
+                  </div>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Our dedicated sales team is available to answer your questions and provide personalized demos for your institution.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer id="contact" className="border-t border-border py-12">
+      <footer className="border-t border-border py-12">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>

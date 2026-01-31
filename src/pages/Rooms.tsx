@@ -5,7 +5,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Filter, SlidersHorizontal } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Search, Filter, SlidersHorizontal, CheckCircle2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 const allRooms = [
   { roomNumber: "101", floor: 1, type: "single" as const, rent: 8500, status: "available" as RoomStatus, amenities: ["WiFi", "AC"], occupants: 0, maxOccupants: 1 },
@@ -20,9 +22,13 @@ const allRooms = [
 ]
 
 const Rooms = () => {
+  const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [typeFilter, setTypeFilter] = useState<string>("all")
+  const [selectedRoom, setSelectedRoom] = useState<typeof allRooms[0] | null>(null)
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [applyDialogOpen, setApplyDialogOpen] = useState(false)
 
   const filteredRooms = allRooms.filter((room) => {
     const matchesSearch = room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase())
@@ -101,7 +107,18 @@ const Rooms = () => {
         {filteredRooms.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRooms.map((room) => (
-              <RoomCard key={room.roomNumber} {...room} />
+              <RoomCard 
+                key={room.roomNumber} 
+                {...room} 
+                onView={() => {
+                  setSelectedRoom(room)
+                  setViewDialogOpen(true)
+                }}
+                onApply={() => {
+                  setSelectedRoom(room)
+                  setApplyDialogOpen(true)
+                }}
+              />
             ))}
           </div>
         ) : (
@@ -113,6 +130,91 @@ const Rooms = () => {
             <p className="text-muted-foreground">Try adjusting your search or filters</p>
           </div>
         )}
+
+        {/* View Room Dialog */}
+        <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Room {selectedRoom?.roomNumber}</DialogTitle>
+              <DialogDescription>
+                Floor {selectedRoom?.floor} • {selectedRoom?.type?.charAt(0).toUpperCase()}{selectedRoom?.type?.slice(1)} Room
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Status</span>
+                <Badge variant={selectedRoom?.status === "available" ? "available" : selectedRoom?.status === "occupied" ? "occupied" : selectedRoom?.status === "pending" ? "pending" : "maintenance"}>
+                  {selectedRoom?.status?.charAt(0).toUpperCase()}{selectedRoom?.status?.slice(1)}
+                </Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Rent</span>
+                <span className="font-semibold">₹{selectedRoom?.rent?.toLocaleString()}/month</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Occupancy</span>
+                <span>{selectedRoom?.occupants}/{selectedRoom?.maxOccupants}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Amenities</span>
+                <span>{selectedRoom?.amenities?.join(", ") || "None"}</span>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
+              {selectedRoom?.status === "available" && (
+                <Button variant="hero" onClick={() => {
+                  setViewDialogOpen(false)
+                  setApplyDialogOpen(true)
+                }}>
+                  Apply for Room
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Apply for Room Dialog */}
+        <Dialog open={applyDialogOpen} onOpenChange={setApplyDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Apply for Room {selectedRoom?.roomNumber}</DialogTitle>
+              <DialogDescription>
+                Confirm your application for this room. You'll be notified once your application is reviewed.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 space-y-3">
+              <div className="flex justify-between p-3 bg-muted rounded-lg">
+                <span className="text-muted-foreground">Room</span>
+                <span className="font-medium">Room {selectedRoom?.roomNumber}</span>
+              </div>
+              <div className="flex justify-between p-3 bg-muted rounded-lg">
+                <span className="text-muted-foreground">Type</span>
+                <span className="font-medium capitalize">{selectedRoom?.type}</span>
+              </div>
+              <div className="flex justify-between p-3 bg-muted rounded-lg">
+                <span className="text-muted-foreground">Monthly Rent</span>
+                <span className="font-semibold text-primary">₹{selectedRoom?.rent?.toLocaleString()}</span>
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
+              <Button 
+                variant="hero" 
+                onClick={() => {
+                  setApplyDialogOpen(false)
+                  toast({
+                    title: "Application Submitted!",
+                    description: `Your application for Room ${selectedRoom?.roomNumber} has been submitted successfully.`,
+                  })
+                }}
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Confirm Application
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   )

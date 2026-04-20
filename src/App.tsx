@@ -14,6 +14,7 @@ import Register from "./pages/Register";
 import Users from "./pages/Users";
 import AdminMessages from "./pages/AdminMessages";
 import Staff from "./pages/Staff";
+import Visitors from "./pages/Visitors";
 import NotFound from "./pages/NotFound";
 
 import RoomDetails from "./pages/RoomDetails";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/rooms/:id" element={<RoomDetails />} />
           <Route path="/complaints" element={<Complaints />} />
           <Route path="/payments" element={<Payments />} />
+          <Route path="/visitors" element={<Visitors />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/messages" element={<AdminMessages />} />

@@ -1,0 +1,362 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Rahul Sharma",
+      "email": "rahul.s@example.com",
+      "role": "student",
+      "roomBox": "203",
+      "joinDate": "2024-01-14",
+      "status": "active",
+      "phone": "+91 98765 43210",
+      "password": "password123"
+    },
+    {
+      "id": "2",
+      "name": "Priya Patel",
+      "email": "priya.p@example.com",
+      "role": "student",
+      "roomBox": "205",
+      "joinDate": "2024-01-10",
+      "status": "active",
+      "phone": "+91 98765 43211",
+      "password": "password123"
+    },
+    {
+      "id": "3",
+      "name": "Admin User",
+      "email": "admin@homebuddy.com",
+      "role": "admin",
+      "roomBox": "-",
+      "joinDate": "2023-12-01",
+      "status": "active",
+      "phone": "+91 98765 43212",
+      "password": "admin123"
+    },
+    {
+      "id": "4",
+      "name": "Amit Kumar",
+      "email": "amit.k@example.com",
+      "role": "student",
+      "roomBox": "312",
+      "joinDate": "2024-01-15",
+      "status": "pending",
+      "phone": "+91 98765 43213",
+      "password": "password123"
+    },
+    {
+      "id": "staff-1",
+      "name": "John Staff",
+      "email": "staff@homebuddy.com",
+      "role": "staff",
+      "roomBox": "-",
+      "joinDate": "2024-01-15",
+      "status": "active",
+      "phone": "+91 98765 43215",
+      "password": "password123"
+    },
+    {
+      "id": "6",
+      "name": "Airaah",
+      "email": "staff@gmail.com",
+      "role": "staff",
+      "roomBox": "Unassigned",
+      "joinDate": "",
+      "status": "active",
+      "phone": "8495761320",
+      "password": "password123"
+    },
+    {
+      "id": "shifa-1",
+      "name": "Shifa",
+      "email": "shifa@student.com",
+      "role": "student",
+      "roomBox": "Unassigned",
+      "joinDate": "2026-03-19",
+      "status": "active",
+      "phone": "0000000000",
+      "password": "password123"
+    },
+    {
+      "id": "4d8c1782-feef-4fbf-9cac-e71011dbb82c",
+      "name": "adhilafathima",
+      "email": "adz@gmail.com",
+      "role": "student",
+      "roomBox": "101",
+      "joinDate": "",
+      "status": "active",
+      "phone": "9784521364",
+      "password": "password123"
+    },
+    {
+      "id": "5faf2124-5ed6-4a04-bbb6-fd32a41da62e",
+      "name": "reetha",
+      "email": "reetha@gmail.com",
+      "role": "student",
+      "roomBox": "401",
+      "joinDate": "",
+      "status": "active",
+      "phone": "9632587410",
+      "password": "meetreetha"
+    }
+  ],
+  "rooms": [
+    {
+      "roomNumber": "101",
+      "floor": 1,
+      "type": "single",
+      "rent": 8500,
+      "status": "occupied",
+      "amenities": "WiFi,AC",
+      "occupants": 1,
+      "maxOccupants": 1,
+      "residents": "adhilafathima",
+      "images": "https://www.homversity.com/site_assets/img/Property-Photos/3253_46_1669205665.jpg",
+      "pendingUserId": ""
+    },
+    {
+      "roomNumber": "102",
+      "floor": 2,
+      "type": "single",
+      "rent": 7500,
+      "status": "occupied",
+      "amenities": "WiFi,studytable",
+      "occupants": 1,
+      "maxOccupants": 1,
+      "residents": "Priya Patel",
+      "images": "https://s3.collegedisha.com/collegedisha/institutes/gallery/SVNIT_hostel.webp",
+      "pendingUserId": ""
+    },
+    {
+      "roomNumber": "203",
+      "floor": 2,
+      "type": "triple",
+      "rent": 6000,
+      "status": "occupied",
+      "amenities": "WiFi,AC,study table",
+      "occupants": 1,
+      "maxOccupants": 3,
+      "residents": "Rahul Sharma",
+      "images": "https://thumbs.dreamstime.com/b/dorm-room-cheap-hostel-level-beds-european-table-one-chair-41238352.jpg?w=576",
+      "pendingUserId": ""
+    },
+    {
+      "roomNumber": "204",
+      "floor": 2,
+      "type": "double",
+      "rent": 6500,
+      "status": "occupied",
+      "amenities": "WiFi,Study Table",
+      "occupants": 2,
+      "maxOccupants": 2,
+      "residents": "Amit Kumar,Suresh Raina",
+      "images": "https://www.svnit.ac.in/web/hostels1/mtb/image/room.png",
+      "pendingUserId": ""
+    },
+    {
+      "roomNumber": "401",
+      "floor": 1,
+      "type": "double",
+      "rent": 7500,
+      "status": "occupied",
+      "amenities": "WiFi",
+      "occupants": 1,
+      "maxOccupants": 2,
+      "residents": "reetha",
+      "images": "",
+      "pendingUserId": ""
+    },
+    {
+      "roomNumber": "402",
+      "floor": 2,
+      "type": "double",
+      "rent": 5580,
+      "status": "available",
+      "amenities": "WiFi,Balcony",
+      "occupants": 0,
+      "maxOccupants": 2,
+      "residents": "",
+      "images": "",
+      "pendingUserId": ""
+    }
+  ],
+  "complaints": [
+    {
+      "id": "c1",
+      "title": "Fan not working",
+      "description": "The ceiling fan in my room makes a lot of noise and doesn't spin fast.",
+      "category": "electrical",
+      "status": "in-progress",
+      "roomNumber": "203",
+      "studentName": "Rahul Sharma",
+      "createdAt": "2024-03-10",
+      "updatedAt": "2024-03-12"
+    },
+    {
+      "id": "c2",
+      "title": "Leaking tap",
+      "description": "The bathroom tap is leaking constantly.",
+      "category": "plumbing",
+      "status": "pending",
+      "roomNumber": "102",
+      "studentName": "Priya Patel",
+      "createdAt": "2024-03-15",
+      "updatedAt": "2024-03-15"
+    },
+    {
+      "id": "c3",
+      "title": "WiFi signal weak",
+      "description": "Internet keeps disconnecting in the evening.",
+      "category": "other",
+      "status": "resolved",
+      "roomNumber": "204",
+      "studentName": "Amit Kumar",
+      "createdAt": "2024-03-05",
+      "updatedAt": "2024-03-07"
+    },
+    {
+      "id": "c4",
+      "title": "Door lock issue",
+      "description": "The main door lock is jammed.",
+      "category": "security",
+      "status": "pending",
+      "roomNumber": "203",
+      "studentName": "Rahul Sharma",
+      "createdAt": "2024-03-16",
+      "updatedAt": "2024-03-16"
+    }
+  ],
+  "payments": [
+    {
+      "id": "p1",
+      "studentName": "Rahul Sharma",
+      "roomNumber": "203",
+      "amount": 5000,
+      "month": "March",
+      "year": 2024,
+      "status": "paid",
+      "dueDate": "2024-03-05",
+      "paidDate": "2024-03-04"
+    },
+    {
+      "id": "p2",
+      "studentName": "Priya Patel",
+      "roomNumber": "102",
+      "amount": 7500,
+      "month": "March",
+      "year": 2024,
+      "status": "paid",
+      "dueDate": "2024-03-05",
+      "paidDate": "2026-04-10"
+    },
+    {
+      "id": "p3",
+      "studentName": "Amit Kumar",
+      "roomNumber": "204",
+      "amount": 6500,
+      "month": "March",
+      "year": 2024,
+      "status": "paid",
+      "dueDate": "2024-03-05",
+      "paidDate": "2026-03-18"
+    },
+    {
+      "id": "p4",
+      "studentName": "Rahul Sharma",
+      "roomNumber": "203",
+      "amount": 5000,
+      "month": "February",
+      "year": 2024,
+      "status": "paid",
+      "dueDate": "2024-02-05",
+      "paidDate": "2024-02-03"
+    },
+    {
+      "id": "p5",
+      "studentName": "Priya Patel",
+      "roomNumber": "102",
+      "amount": 7500,
+      "month": "February",
+      "year": 2024,
+      "status": "paid",
+      "dueDate": "2024-02-05",
+      "paidDate": "2024-02-05"
+    },
+    {
+      "id": "d981bdbf",
+      "studentName": "Shifa",
+      "roomNumber": "101",
+      "amount": 8500,
+      "month": "March",
+      "year": 2026,
+      "status": "paid",
+      "dueDate": "2026-03-18",
+      "paidDate": "2026-03-18"
+    }
+  ],
+  "messages": [
+    {
+      "id": "d13e3c52",
+      "firstName": "anakha",
+      "lastName": "dinesan",
+      "email": "angu@gmail.com",
+      "message": "how are the timing closing  time of hostel",
+      "createdAt": "2026-03-18T18:28:44.260Z",
+      "status": "unread"
+    }
+  ],
+  "staff": [
+    {
+      "id": "s1",
+      "name": "Rethi Devi",
+      "role": "Warden",
+      "phone": "+91 98765 43220",
+      "email": "rethy@gmail.com",
+      "status": "active",
+      "shift": "Day",
+      "joinDate": "2024-01-01"
+    },
+    {
+      "id": "s2",
+      "name": "Thahira",
+      "role": "Cook",
+      "phone": "+91 98765 43221",
+      "email": "thahira@gmail.com",
+      "status": "active",
+      "shift": "Day",
+      "joinDate": "2024-02-01"
+    },
+    {
+      "id": "s3",
+      "name": "kuplesh",
+      "role": "Security",
+      "phone": "+91 98765 43222",
+      "email": "kuppi@gmail.com",
+      "status": "active",
+      "shift": "Night",
+      "joinDate": "2024-03-01"
+    }
+  ],
+  "visitors": [
+    {
+      "id": "v1",
+      "visitorName": "Sunil Sharma",
+      "studentName": "Rahul Sharma",
+      "relation": "Father",
+      "visitDate": "2024-03-20",
+      "checkIn": "10:00",
+      "checkOut": "11:30",
+      "status": "completed"
+    },
+    {
+      "id": "v2",
+      "visitorName": "Neha Patel",
+      "studentName": "Priya Patel",
+      "relation": "Sister",
+      "visitDate": "2024-03-21",
+      "checkIn": "14:00",
+      "checkOut": "",
+      "status": "active"
+    }
+  ]
+}

@@ -36,6 +36,7 @@ export function Navbar({ variant = "landing" }: NavbarProps) {
       { href: "/rooms", label: "Rooms" },
       { href: "/complaints", label: "Complaints" },
       { href: "/payments", label: "Payments" },
+      { href: "/visitors", label: "Visitors" },
       { href: "/staff", label: "Staff" },
     ]
     : role === "staff"
@@ -44,6 +45,7 @@ export function Navbar({ variant = "landing" }: NavbarProps) {
       { href: "/rooms", label: "Rooms" },
       { href: "/complaints", label: "Complaints" },
       { href: "/payments", label: "Payments" },
+      { href: "/visitors", label: "Visitors" },
     ]
     : [
       { href: "/dashboard", label: "Dashboard" },

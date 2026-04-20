@@ -219,15 +219,15 @@ export function RoomRecommendationModal() {
                                     <input 
                                         type="range" 
                                         min="5000" 
-                                        max="10000" 
-                                        step="500" 
+                                        max="9000" 
+                                        step="100" 
                                         value={budget} 
                                         onChange={(e) => setBudget(Number(e.target.value))}
                                         className="w-full h-3 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                                     />
                                     <div className="flex justify-between text-sm text-muted-foreground font-medium">
                                         <span>₹5,000</span>
-                                        <span>₹10,000</span>
+                                        <span>₹9,000+</span>
                                     </div>
                                 </div>
 

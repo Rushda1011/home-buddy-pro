@@ -432,7 +432,7 @@ const Index = () => {
             <div>
               <Link to="/" className="flex items-center gap-2 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg shadow-md bg-white overflow-hidden">
-                  <img src="/app_logo.png" alt="Logo" className="h-full w-full object-cover" />
+                  <img src="app_logo.png" alt="Logo" className="h-full w-full object-cover" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-bold text-foreground leading-none">

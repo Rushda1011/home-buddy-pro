@@ -114,7 +114,7 @@ export const INITIAL_DATA: AppData = {
       "occupants": 1,
       "maxOccupants": 1,
       "residents": ["adhilafathima"],
-      "images": ["/home-buddy-pro/rooms/single.png"]
+      "images": ["https://www.homversity.com/site_assets/img/Property-Photos/3253_46_1669205665.jpg"]
     },
     {
       "roomNumber": "102",
@@ -126,7 +126,7 @@ export const INITIAL_DATA: AppData = {
       "occupants": 1,
       "maxOccupants": 1,
       "residents": ["Priya Patel"],
-      "images": ["/home-buddy-pro/rooms/single.png"]
+      "images": ["https://s3.collegedisha.com/collegedisha/institutes/gallery/SVNIT_hostel.webp"]
     },
     {
       "roomNumber": "203",
@@ -138,7 +138,7 @@ export const INITIAL_DATA: AppData = {
       "occupants": 1,
       "maxOccupants": 3,
       "residents": ["Rahul Sharma"],
-      "images": ["/home-buddy-pro/rooms/triple.png"]
+      "images": ["https://thumbs.dreamstime.com/b/dorm-room-cheap-hostel-level-beds-european-table-one-chair-41238352.jpg?w=576"]
     },
     {
       "roomNumber": "204",
@@ -150,7 +150,7 @@ export const INITIAL_DATA: AppData = {
       "occupants": 2,
       "maxOccupants": 2,
       "residents": ["Amit Kumar", "Suresh Raina"],
-      "images": ["/home-buddy-pro/rooms/double.png"]
+      "images": ["https://www.svnit.ac.in/web/hostels1/mtb/image/room.png"]
     },
     {
       "roomNumber": "401",
@@ -162,7 +162,7 @@ export const INITIAL_DATA: AppData = {
       "occupants": 1,
       "maxOccupants": 2,
       "residents": ["reetha"],
-      "images": ["/home-buddy-pro/rooms/double.png"]
+      "images": ["https://www.homversity.com/site_assets/img/Property-Photos/3253_46_1669205665.jpg"]
     },
     {
       "roomNumber": "402",
@@ -174,7 +174,7 @@ export const INITIAL_DATA: AppData = {
       "occupants": 0,
       "maxOccupants": 2,
       "residents": [],
-      "images": ["/home-buddy-pro/rooms/double.png"]
+      "images": ["https://www.svnit.ac.in/web/hostels1/mtb/image/room.png"]
     }
   ],
   "complaints": [

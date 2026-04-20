@@ -1,36 +1,219 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
-import { RoomCard, RoomStatus } from "@/components/RoomCard"
+import { RoomCard } from "@/components/RoomCard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
-import { Search, Filter, SlidersHorizontal, CheckCircle2 } from "lucide-react"
+import { Search, Filter, SlidersHorizontal, Plus, Home as HomeIcon } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
-
-const allRooms = [
-  { roomNumber: "101", floor: 1, type: "single" as const, rent: 8500, status: "available" as RoomStatus, amenities: ["WiFi", "AC"], occupants: 0, maxOccupants: 1 },
-  { roomNumber: "102", floor: 1, type: "single" as const, rent: 7500, status: "occupied" as RoomStatus, amenities: ["WiFi"], occupants: 1, maxOccupants: 1 },
-  { roomNumber: "103", floor: 1, type: "double" as const, rent: 6500, status: "available" as RoomStatus, amenities: ["WiFi", "AC"], occupants: 0, maxOccupants: 2 },
-  { roomNumber: "201", floor: 2, type: "double" as const, rent: 6000, status: "occupied" as RoomStatus, amenities: ["WiFi"], occupants: 2, maxOccupants: 2 },
-  { roomNumber: "202", floor: 2, type: "single" as const, rent: 8000, status: "pending" as RoomStatus, amenities: ["WiFi", "AC"], occupants: 0, maxOccupants: 1 },
-  { roomNumber: "203", floor: 2, type: "triple" as const, rent: 5000, status: "available" as RoomStatus, amenities: ["WiFi"], occupants: 1, maxOccupants: 3 },
-  { roomNumber: "301", floor: 3, type: "single" as const, rent: 7000, status: "maintenance" as RoomStatus, amenities: ["WiFi"], occupants: 0, maxOccupants: 1 },
-  { roomNumber: "302", floor: 3, type: "double" as const, rent: 6500, status: "available" as RoomStatus, amenities: ["WiFi", "AC"], occupants: 1, maxOccupants: 2 },
-  { roomNumber: "303", floor: 3, type: "triple" as const, rent: 4500, status: "occupied" as RoomStatus, amenities: ["WiFi"], occupants: 3, maxOccupants: 3 },
-]
+import { getRooms, updateRoomStatus, Room, getCurrentUser, addRoom, RoomType, updateRoomDetails, deleteRoom, deallocateRoom, getUser, getUserByEmail } from "@/lib/data-service"
+import { BrandedConfirm } from "@/components/BrandedConfirm"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 const Rooms = () => {
   const { toast } = useToast()
+  const navigate = useNavigate()
+  const [rooms, setRooms] = useState<Room[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [typeFilter, setTypeFilter] = useState<string>("all")
-  const [selectedRoom, setSelectedRoom] = useState<typeof allRooms[0] | null>(null)
-  const [viewDialogOpen, setViewDialogOpen] = useState(false)
-  const [applyDialogOpen, setApplyDialogOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState(getCurrentUser())
+  const [isAddRoomOpen, setIsAddRoomOpen] = useState(false)
+  const [isEditRoomOpen, setIsEditRoomOpen] = useState(false)
+  const [editingRoom, setEditingRoom] = useState<Room | null>(null)
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant?: "default" | "destructive";
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  })
 
-  const filteredRooms = allRooms.filter((room) => {
+  const [newRoom, setNewRoom] = useState({
+    roomNumber: "",
+    floor: 1,
+    type: "single" as RoomType,
+    rent: 5000,
+    maxOccupants: 1,
+    amenities: "WiFi"
+  })
+
+  const isAdmin = currentUser?.role === 'admin'
+  const isStaff = currentUser?.role === 'staff'
+
+  useEffect(() => {
+    if (currentUser?.role === 'student') {
+      navigate('/dashboard', { replace: true })
+      return
+    }
+
+    const loadRooms = async () => {
+      const data = await getRooms()
+      setRooms(data)
+
+      // Repair user session if ID is missing
+      const storedUser = getCurrentUser()
+      if (storedUser && !storedUser.id && storedUser.email) {
+        const freshUser = await getUserByEmail(storedUser.email)
+        if (freshUser) {
+          localStorage.setItem("currentUser", JSON.stringify(freshUser))
+          setCurrentUser(freshUser)
+        }
+      }
+    }
+    loadRooms()
+  }, [])
+
+  const handleApply = async (roomNumber: string) => {
+    if (!currentUser) return;
+    await updateRoomStatus(roomNumber, "pending", 0, currentUser.id)
+    const data = await getRooms()
+    setRooms(data) // Refresh from store
+
+    toast({
+      title: "Application Submitted",
+      description: `You have successfully applied for Room ${roomNumber}.`,
+    })
+  }
+
+  const validateRoom = (room: any) => {
+    if (room.rent < 500 || room.rent > 50000) {
+      toast({ title: "Invalid Rent", description: "Rent must be between ₹500 and ₹50,000", variant: "destructive" })
+      return false
+    }
+    if (room.maxOccupants < 1 || room.maxOccupants > 10) {
+      toast({ title: "Invalid Occupants", description: "Max occupants must be between 1 and 10", variant: "destructive" })
+      return false
+    }
+    if (room.floor < 1) {
+      toast({ title: "Invalid Floor", description: "Floor must be at least 1", variant: "destructive" })
+      return false
+    }
+    return true
+  }
+
+  const handleAddRoom = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validateRoom(newRoom)) return
+
+    try {
+      await addRoom({
+        ...newRoom,
+        status: 'available',
+        amenities: newRoom.amenities.split(',').map(a => a.trim()).filter(a => a)
+      })
+      toast({
+        title: "Room Added",
+        description: `Room ${newRoom.roomNumber} has been successfully added.`,
+      })
+      setIsAddRoomOpen(false)
+      const data = await getRooms()
+      setRooms(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add room. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleEditRoom = (room: Room) => {
+    setEditingRoom(room)
+    setNewRoom({
+      roomNumber: room.roomNumber,
+      floor: room.floor,
+      type: room.type,
+      rent: room.rent,
+      maxOccupants: room.maxOccupants,
+      amenities: room.amenities.join(', ')
+    })
+    setIsEditRoomOpen(true)
+  }
+
+  const handleUpdateRoom = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validateRoom(newRoom)) return
+
+    try {
+      await updateRoomDetails(newRoom.roomNumber, {
+        ...newRoom,
+        amenities: newRoom.amenities.split(',').map(a => a.trim()).filter(a => a)
+      })
+      toast({
+        title: "Room Updated",
+        description: `Room ${newRoom.roomNumber} has been successfully updated.`,
+      })
+      setIsEditRoomOpen(false)
+      const data = await getRooms()
+      setRooms(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update room.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleDeleteRoom = (roomNumber: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Room",
+      description: `Are you sure you want to delete Room ${roomNumber}? This action cannot be undone.`,
+      variant: "destructive",
+      onConfirm: async () => {
+        await deleteRoom(roomNumber)
+        toast({ title: "Room Deleted", description: `Room ${roomNumber} removed.` })
+        const data = await getRooms()
+        setRooms(data)
+      }
+    })
+  }
+
+  const handleDeallocate = (roomNumber: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Deallocate Room",
+      description: `Are you sure you want to deallocate Room ${roomNumber}? The residents will be unassigned and the room will become available.`,
+      onConfirm: async () => {
+        await deallocateRoom(roomNumber)
+        toast({ title: "Room Deallocated", description: `Room ${roomNumber} is now available.` })
+        const data = await getRooms()
+        setRooms(data)
+      }
+    })
+  }
+
+  const handleAccept = async (roomNumber: string) => {
+    // Transition from pending to occupied, backend handles user updates
+    await updateRoomStatus(roomNumber, "occupied")
+    const data = await getRooms()
+    setRooms(data)
+
+    toast({
+      title: "Application Accepted",
+      description: `Room ${roomNumber} is now officially occupied.`,
+    })
+  }
+
+  const filteredRooms = rooms.filter((room) => {
     const matchesSearch = room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === "all" || room.status === statusFilter
     const matchesType = typeFilter === "all" || room.type === typeFilter
@@ -38,11 +221,11 @@ const Rooms = () => {
   })
 
   const statusCounts = {
-    all: allRooms.length,
-    available: allRooms.filter((r) => r.status === "available").length,
-    occupied: allRooms.filter((r) => r.status === "occupied").length,
-    pending: allRooms.filter((r) => r.status === "pending").length,
-    maintenance: allRooms.filter((r) => r.status === "maintenance").length,
+    all: rooms.length,
+    available: rooms.filter((r) => r.status === "available").length,
+    occupied: rooms.filter((r) => r.status === "occupied").length,
+    pending: rooms.filter((r) => r.status === "pending").length,
+    maintenance: rooms.filter((r) => r.status === "maintenance").length,
   }
 
   return (
@@ -51,9 +234,208 @@ const Rooms = () => {
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Rooms</h1>
-          <p className="text-muted-foreground">Browse and manage all hostel rooms</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Rooms</h1>
+            <p className="text-muted-foreground">Browse and manage all hostel rooms</p>
+          </div>
+
+          {isAdmin && (
+            <Dialog open={isAddRoomOpen} onOpenChange={setIsAddRoomOpen}>
+              <DialogTrigger asChild>
+                <Button variant="hero" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Room
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={handleAddRoom}>
+                  <DialogHeader>
+                    <DialogTitle>Add New Room</DialogTitle>
+                    <DialogDescription>
+                      Fill in the details to add a new room to the hostel.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="roomNumber" className="text-right">
+                        Room #
+                      </Label>
+                      <Input
+                        id="roomNumber"
+                        value={newRoom.roomNumber}
+                        onChange={(e) => setNewRoom({ ...newRoom, roomNumber: e.target.value })}
+                        className="col-span-3"
+                        placeholder="e.g. 101"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="floor" className="text-right">
+                        Floor
+                      </Label>
+                      <Input
+                        id="floor"
+                        type="number"
+                        value={newRoom.floor}
+                        onChange={(e) => setNewRoom({ ...newRoom, floor: parseInt(e.target.value) })}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="type" className="text-right">
+                        Type
+                      </Label>
+                      <Select
+                        value={newRoom.type}
+                        onValueChange={(v: RoomType) => setNewRoom({ ...newRoom, type: v })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="single">Single</SelectItem>
+                          <SelectItem value="double">Double</SelectItem>
+                          <SelectItem value="triple">Triple</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="rent" className="text-right">
+                        Rent
+                      </Label>
+                      <Input
+                        id="rent"
+                        type="number"
+                        value={newRoom.rent}
+                        onChange={(e) => setNewRoom({ ...newRoom, rent: parseInt(e.target.value) })}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="maxOccupants" className="text-right">
+                        Max Occ.
+                      </Label>
+                      <Input
+                        id="maxOccupants"
+                        type="number"
+                        value={newRoom.maxOccupants}
+                        onChange={(e) => setNewRoom({ ...newRoom, maxOccupants: parseInt(e.target.value) })}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="amenities" className="text-right">
+                        Amenities
+                      </Label>
+                      <Input
+                        id="amenities"
+                        value={newRoom.amenities}
+                        onChange={(e) => setNewRoom({ ...newRoom, amenities: e.target.value })}
+                        className="col-span-3"
+                        placeholder="WiFi, AC, Study Table"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Save Room</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {/* Edit Room Dialog */}
+          <Dialog open={isEditRoomOpen} onOpenChange={setIsEditRoomOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <form onSubmit={handleUpdateRoom}>
+                <DialogHeader>
+                  <DialogTitle>Edit Room {editingRoom?.roomNumber}</DialogTitle>
+                  <DialogDescription>
+                    Update the details for this room.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="edit-floor" className="text-right">
+                      Floor
+                    </Label>
+                    <Input
+                      id="edit-floor"
+                      type="number"
+                      value={newRoom.floor}
+                      onChange={(e) => setNewRoom({ ...newRoom, floor: parseInt(e.target.value) })}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="edit-type" className="text-right">
+                      Type
+                    </Label>
+                    <Select
+                      value={newRoom.type}
+                      onValueChange={(v: RoomType) => setNewRoom({ ...newRoom, type: v })}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="single">Single</SelectItem>
+                        <SelectItem value="double">Double</SelectItem>
+                        <SelectItem value="triple">Triple</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="edit-rent" className="text-right">
+                      Rent
+                    </Label>
+                    <Input
+                      id="edit-rent"
+                      type="number"
+                      value={newRoom.rent}
+                      onChange={(e) => setNewRoom({ ...newRoom, rent: parseInt(e.target.value) })}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="edit-maxOccupants" className="text-right">
+                      Max Occ.
+                    </Label>
+                    <Input
+                      id="edit-maxOccupants"
+                      type="number"
+                      value={newRoom.maxOccupants}
+                      onChange={(e) => setNewRoom({ ...newRoom, maxOccupants: parseInt(e.target.value) })}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="edit-amenities" className="text-right">
+                      Amenities
+                    </Label>
+                    <Input
+                      id="edit-amenities"
+                      value={newRoom.amenities}
+                      onChange={(e) => setNewRoom({ ...newRoom, amenities: e.target.value })}
+                      className="col-span-3"
+                      placeholder="WiFi, AC, Study Table"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsEditRoomOpen(false)}>Cancel</Button>
+                  <Button type="submit">Update Room</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Status Filter Badges */}
@@ -62,16 +444,14 @@ const Rooms = () => {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                statusFilter === status
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === status
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
             >
               <span className="capitalize">{status}</span>
-              <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                statusFilter === status ? "bg-primary-foreground/20" : "bg-background"
-              }`}>
+              <span className={`px-1.5 py-0.5 rounded-full text-xs ${statusFilter === status ? "bg-primary-foreground/20" : "bg-background"
+                }`}>
                 {count}
               </span>
             </button>
@@ -107,17 +487,17 @@ const Rooms = () => {
         {filteredRooms.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRooms.map((room) => (
-              <RoomCard 
-                key={room.roomNumber} 
-                {...room} 
-                onView={() => {
-                  setSelectedRoom(room)
-                  setViewDialogOpen(true)
-                }}
-                onApply={() => {
-                  setSelectedRoom(room)
-                  setApplyDialogOpen(true)
-                }}
+              <RoomCard
+                key={room.roomNumber}
+                {...room}
+                hideApplyButton={isAdmin || isStaff}
+                showAdminControls={isAdmin}
+                onApply={() => handleApply(room.roomNumber)}
+                onAccept={() => handleAccept(room.roomNumber)}
+                onEdit={() => handleEditRoom(room)}
+                onDelete={() => handleDeleteRoom(room.roomNumber)}
+                onDeallocate={() => handleDeallocate(room.roomNumber)}
+                onView={() => navigate(`/rooms/${room.roomNumber}`)}
               />
             ))}
           </div>
@@ -130,94 +510,19 @@ const Rooms = () => {
             <p className="text-muted-foreground">Try adjusting your search or filters</p>
           </div>
         )}
-
-        {/* View Room Dialog */}
-        <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Room {selectedRoom?.roomNumber}</DialogTitle>
-              <DialogDescription>
-                Floor {selectedRoom?.floor} • {selectedRoom?.type?.charAt(0).toUpperCase()}{selectedRoom?.type?.slice(1)} Room
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
-                <Badge variant={selectedRoom?.status === "available" ? "available" : selectedRoom?.status === "occupied" ? "occupied" : selectedRoom?.status === "pending" ? "pending" : "maintenance"}>
-                  {selectedRoom?.status?.charAt(0).toUpperCase()}{selectedRoom?.status?.slice(1)}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Rent</span>
-                <span className="font-semibold">₹{selectedRoom?.rent?.toLocaleString()}/month</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Occupancy</span>
-                <span>{selectedRoom?.occupants}/{selectedRoom?.maxOccupants}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Amenities</span>
-                <span>{selectedRoom?.amenities?.join(", ") || "None"}</span>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
-              {selectedRoom?.status === "available" && (
-                <Button variant="hero" onClick={() => {
-                  setViewDialogOpen(false)
-                  setApplyDialogOpen(true)
-                }}>
-                  Apply for Room
-                </Button>
-              )}
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Apply for Room Dialog */}
-        <Dialog open={applyDialogOpen} onOpenChange={setApplyDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Apply for Room {selectedRoom?.roomNumber}</DialogTitle>
-              <DialogDescription>
-                Confirm your application for this room. You'll be notified once your application is reviewed.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4 space-y-3">
-              <div className="flex justify-between p-3 bg-muted rounded-lg">
-                <span className="text-muted-foreground">Room</span>
-                <span className="font-medium">Room {selectedRoom?.roomNumber}</span>
-              </div>
-              <div className="flex justify-between p-3 bg-muted rounded-lg">
-                <span className="text-muted-foreground">Type</span>
-                <span className="font-medium capitalize">{selectedRoom?.type}</span>
-              </div>
-              <div className="flex justify-between p-3 bg-muted rounded-lg">
-                <span className="text-muted-foreground">Monthly Rent</span>
-                <span className="font-semibold text-primary">₹{selectedRoom?.rent?.toLocaleString()}</span>
-              </div>
-            </div>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setApplyDialogOpen(false)}>Cancel</Button>
-              <Button 
-                variant="hero" 
-                onClick={() => {
-                  setApplyDialogOpen(false)
-                  toast({
-                    title: "Application Submitted!",
-                    description: `Your application for Room ${selectedRoom?.roomNumber} has been submitted successfully.`,
-                  })
-                }}
-              >
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Confirm Application
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </main>
+
+      <BrandedConfirm 
+        isOpen={confirmConfig.isOpen}
+        onOpenChange={(open) => setConfirmConfig(prev => ({ ...prev, isOpen: open }))}
+        title={confirmConfig.title}
+        description={confirmConfig.description}
+        onConfirm={confirmConfig.onConfirm}
+        variant={confirmConfig.variant}
+      />
     </div>
   )
 }
 
 export default Rooms
+

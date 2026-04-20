@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { Building2, Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react"
 
+import { addUser, getRooms } from "@/lib/data-service"
+
 const Register = () => {
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -16,20 +18,118 @@ const Register = () => {
     email: "",
     phone: "",
     role: "",
+    staffRole: "",
+    gender: "",
     password: "",
   })
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    
+    if (!formData.role) {
+      toast({ title: "Role required", description: "Please select if you are a student, staff, or admin.", variant: "destructive" })
+      return
+    }
 
-    // Simulate registration
+    if (formData.role === "staff" && !formData.staffRole) {
+      toast({ title: "Staff Role required", description: "Please select your specific staff designation (e.g., Cook, Warden).", variant: "destructive" })
+      return
+    }
+
+    if (!formData.gender) {
+      toast({ title: "Gender required", description: "Please select your gender.", variant: "destructive" })
+      return
+    }
+
+    if (formData.gender === "Male") {
+      toast({ title: "Registration Denied", description: "Sorry, this hostel is exclusively for ladies.", variant: "destructive" })
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" })
+      return
+    }
+
+    if (formData.password.length < 6) {
+      toast({ title: "Weak password", description: "Password must be at least 6 characters long.", variant: "destructive" })
+      return
+    }
+
+    if (formData.phone.length < 10) {
+      toast({ title: "Invalid phone", description: "Please enter a valid phone number.", variant: "destructive" })
+      return
+    }
+
+    setIsLoading(true)
+    
+    // Check room availability
+    try {
+      const rooms = await getRooms()
+      const availableRooms = rooms.filter(r => r.status === 'available')
+      
+      if (availableRooms.length === 0) {
+        toast({ 
+          title: "Oops!", 
+          description: "Now all the rooms are fills. Please contact admin", 
+          variant: "destructive" 
+        })
+        setIsLoading(false)
+        return
+      }
+    } catch (error) {
+      console.error("Failed to check room availability:", error)
+      // Proceeding might be risky if rooms are actually full, but let's assume availability if API fails
+    }
+
+    try {
+      // Verify name against genderize.io API
+      const firstName = formData.name.split(' ')[0]
+      const response = await fetch(`https://api.genderize.io/?name=${firstName}`)
+      const data = await response.json()
+      
+      if (data.gender === 'male' && data.probability > 0.6) {
+        toast({ 
+          title: "Registration Denied", 
+          description: `The name "${firstName}" appears to be male. This hostel is exclusively for ladies. Please contact admin if this is an error.`, 
+          variant: "destructive" 
+        })
+        setIsLoading(false)
+        return
+      }
+    } catch (error) {
+      console.error("Gender verification failed:", error);
+      // Proceed if API fails, fallback to manual verification
+    }
+
+    // Simulate registration delay
     await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    const role = (formData.role as 'student' | 'admin' | 'staff') || "student"
+
+    // Persist to our "mock database"
+    const res = await addUser({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      role: role,
+      password: formData.password,
+      ...(formData.role === 'staff' && { staffRole: formData.staffRole })
+    })
+
+    localStorage.setItem("currentUser", JSON.stringify({
+      id: res.id,
+      name: formData.name,
+      email: formData.email,
+      role: role,
+      isNewUser: true
+    }))
 
     toast({
       title: "Account created!",
-      description: "Your account has been created successfully.",
+      description: `Welcome! Your ${role} account is ready.`,
     })
 
     navigate("/dashboard")
@@ -54,12 +154,17 @@ const Register = () => {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <Link to="/" className="flex items-center gap-2 mb-8">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary shadow-md">
-              <Building2 className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg shadow-md bg-white overflow-hidden">
+              <img src="/logo.png" alt="Logo" className="h-full w-full object-cover" />
             </div>
-            <span className="text-xl font-bold text-foreground">
-              Hostel<span className="text-primary">Hub</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold text-foreground leading-none">
+                Hostel<span className="text-primary">Hub</span>
+              </span>
+              <span className="text-[10px] text-muted-foreground font-medium">
+                Your Home, Away From Your Home
+              </span>
+            </div>
           </Link>
 
           <div className="mb-8">
@@ -67,7 +172,7 @@ const Register = () => {
             <p className="text-muted-foreground">Fill in your details to get started</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <div className="relative">
@@ -80,6 +185,7 @@ const Register = () => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="pl-10"
                   required
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -96,6 +202,7 @@ const Register = () => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="pl-10"
                   required
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -112,8 +219,23 @@ const Register = () => {
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="pl-10"
                   required
+                  autoComplete="off"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+              <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -124,10 +246,28 @@ const Register = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
                   <SelectItem value="admin">Administrator</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {formData.role === "staff" && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Label htmlFor="staffRole">Staff Role <span className="text-destructive">*</span></Label>
+                <Select value={formData.staffRole} onValueChange={(value) => setFormData({ ...formData, staffRole: value })}>
+                  <SelectTrigger className={!formData.staffRole ? "border-destructive/50 focus:ring-destructive/30 text-muted-foreground" : ""}>
+                    <SelectValue placeholder="Select specific role (e.g. Cook, Warden)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Cook">Cook</SelectItem>
+                    <SelectItem value="Warden">Warden</SelectItem>
+                    <SelectItem value="Security">Security</SelectItem>
+                    <SelectItem value="General Staff">Other / General Staff</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -141,6 +281,7 @@ const Register = () => {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="pl-10 pr-10"
                   required
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

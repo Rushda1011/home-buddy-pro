@@ -2,20 +2,25 @@ import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Link } from "react-router-dom"
-import { 
-  Building2, 
-  Shield, 
-  Bell, 
-  CreditCard, 
-  Users, 
-  BarChart3, 
+import {
+  Building2,
+  Shield,
+  Bell,
+  CreditCard,
+  Users,
+  BarChart3,
   CheckCircle2,
   ArrowRight,
   Sparkles,
   Clock,
   MessageSquare,
-  Home
+  Home,
+  Mail,
+  Phone
 } from "lucide-react"
+import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
+import { addInquiry } from "@/lib/data-service"
 
 const features = [
   {
@@ -76,12 +81,39 @@ const stats = [
 ]
 
 const Index = () => {
-  const scrollToContact = () => {
-    const el = document.getElementById("contact")
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" })
-      // Keep URL shareable
-      if (window.location.hash !== "#contact") window.history.replaceState(null, "", "#contact")
+  const { toast } = useToast()
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    message: ""
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      await addInquiry(formData)
+      toast({
+        title: "Message Sent!",
+        description: "We've received your message and will get back to you soon.",
+      })
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        message: ""
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -103,14 +135,14 @@ const Index = () => {
               <Sparkles className="mr-1 h-3 w-3" />
               Smart Hostel Management System
             </Badge>
-            
+
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl animate-fade-up" style={{ animationDelay: "0.1s" }}>
               Simplify Your
               <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Hostel Operations</span>
             </h1>
-            
+
             <p className="mb-10 text-lg text-muted-foreground sm:text-xl max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: "0.2s" }}>
-              A comprehensive platform for managing hostel accommodations with smart room allocation, 
+              A comprehensive platform for managing hostel accommodations with smart room allocation,
               transparent rent tracking, and efficient complaint resolution.
             </p>
 
@@ -208,8 +240,8 @@ const Index = () => {
                 Smart Room & Issue Recommendations
               </h2>
               <p className="text-muted-foreground mb-6">
-                Our intelligent system uses rule-based logic to suggest suitable rooms based on availability, 
-                rent range, and past complaint history. Rooms with repeated issues are automatically flagged 
+                Our intelligent system uses rule-based logic to suggest suitable rooms based on availability,
+                rent range, and past complaint history. Rooms with repeated issues are automatically flagged
                 for administrative attention.
               </p>
               <ul className="space-y-4">
@@ -270,31 +302,26 @@ const Index = () => {
               <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
                 Join hundreds of hostels already using HostelHub to streamline their operations and improve student satisfaction.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-20">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button variant="accent" size="xl" asChild>
                   <Link to="/register">
                     Start Free Trial
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="xl"
-                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-                  onClick={scrollToContact}
-                >
-                  Contact Sales
+                <Button variant="outline" size="xl" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+                  <Link to="#contact">Contact Sales</Link>
                 </Button>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-foreground/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-foreground/10 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-foreground/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-foreground/10 rounded-full translate-y-1/2 -translate-x-1/2" />
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 bg-muted/30">
+      <section id="contact" className="py-24 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Contact Us</Badge>
@@ -302,132 +329,97 @@ const Index = () => {
               Get in Touch
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Have questions about HostelHub? Our team is here to help you find the perfect solution for your hostel management needs.
+              Have questions about HostelHub? We're here to help you 24/7.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            {/* Contact Form */}
-            <div className="rounded-2xl bg-card p-8 shadow-elegant border border-border/50">
-              <h3 className="text-xl font-semibold text-foreground mb-6">Send us a Message</h3>
-              <form className="space-y-5">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="firstName" className="text-sm font-medium text-foreground">First Name</label>
-                    <input
-                      id="firstName"
-                      type="text"
-                      placeholder="John"
-                      className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="lastName" className="text-sm font-medium text-foreground">Last Name</label>
-                    <input
-                      id="lastName"
-                      type="text"
-                      placeholder="Doe"
-                      className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                    />
-                  </div>
+          <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            {/* Contact Info */}
+            <div className="space-y-8">
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-lg gradient-primary flex items-center justify-center shrink-0 shadow-md">
+                  <Mail className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="john@example.com"
-                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                  />
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Email Us</h3>
+                  <p className="text-muted-foreground mb-2">Our friendly team is here to help.</p>
+                  <a href="mailto:support@hostelhub.com" className="text-primary font-medium hover:underline">support@hostelhub.com</a>
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="subject" className="text-sm font-medium text-foreground">Subject</label>
-                  <select
-                    id="subject"
-                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                  >
-                    <option value="">Select a topic</option>
-                    <option value="sales">Sales Inquiry</option>
-                    <option value="demo">Request a Demo</option>
-                    <option value="support">Technical Support</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="other">Other</option>
-                  </select>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-lg gradient-primary flex items-center justify-center shrink-0 shadow-md">
+                  <Phone className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium text-foreground">Message</label>
-                  <textarea
-                    id="message"
-                    rows={4}
-                    placeholder="Tell us about your hostel management needs..."
-                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors resize-none"
-                  />
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Call Us</h3>
+                  <p className="text-muted-foreground mb-2">Mon-Fri from 8am to 5pm.</p>
+                  <a href="tel:+1234567890" className="text-primary font-medium hover:underline">+91 98765 43210</a>
                 </div>
-                <Button type="submit" variant="hero" size="lg" className="w-full">
-                  Send Message
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-lg gradient-primary flex items-center justify-center shrink-0 shadow-md">
+                  <Building2 className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Visit Us</h3>
+                  <p className="text-muted-foreground mb-2">Come say hello at our office HQ.</p>
+                  <p className="text-foreground">123 Innovation Drive, Tech City, Bangalore</p>
+                </div>
+              </div>
             </div>
 
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div className="rounded-2xl bg-card p-8 shadow-elegant border border-border/50">
-                <h3 className="text-xl font-semibold text-foreground mb-6">Contact Information</h3>
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0">
-                      <Building2 className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-foreground">Office Address</div>
-                      <div className="text-muted-foreground text-sm mt-1">
-                        123 Tech Park, Innovation Hub<br />
-                        Bangalore, Karnataka 560001
-                      </div>
-                    </div>
+            {/* Contact Form */}
+            <div className="rounded-2xl bg-card p-8 shadow-elegant border border-border/50">
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">First name</label>
+                    <input
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="John"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      required
+                    />
                   </div>
-                  <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0">
-                      <Bell className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-foreground">Phone</div>
-                      <div className="text-muted-foreground text-sm mt-1">
-                        +91 80 1234 5678<br />
-                        Mon - Fri, 9:00 AM - 6:00 PM IST
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0">
-                      <MessageSquare className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-foreground">Email</div>
-                      <div className="text-muted-foreground text-sm mt-1">
-                        sales@hostelhub.com<br />
-                        support@hostelhub.com
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">Last name</label>
+                    <input
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Doe"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      required
+                    />
                   </div>
                 </div>
-              </div>
-
-              <div className="rounded-2xl bg-card p-8 shadow-elegant border border-border/50">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
-                    <Clock className="h-5 w-5 text-success" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-foreground">Quick Response</div>
-                    <div className="text-sm text-muted-foreground">We typically respond within 2 hours</div>
-                  </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Email</label>
+                  <input
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
                 </div>
-                <p className="text-muted-foreground text-sm">
-                  Our dedicated sales team is available to answer your questions and provide personalized demos for your institution.
-                </p>
-              </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Message</label>
+                  <textarea
+                    className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="How can we help you?"
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    required
+                  />
+                </div>
+                <Button type="submit" variant="hero" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Sending..." : "Send Message"}
+                </Button>
+              </form>
             </div>
           </div>
         </div>
@@ -439,12 +431,20 @@ const Index = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <Link to="/" className="flex items-center gap-2 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary shadow-md">
-                  <Building2 className="h-5 w-5 text-primary-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg shadow-md bg-white overflow-hidden">
+                  <img src="/logo.png" alt="Logo" className="h-full w-full object-cover" />
                 </div>
-                <span className="text-xl font-bold text-foreground">
-                  Hostel<span className="text-primary">Hub</span>
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold text-foreground leading-none">
+                    Hostel<span className="text-primary">Hub</span>
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
+                    Your Home, Away From Your Home
+                  </span>
+                  <span className="text-[9px] text-primary/80 font-bold uppercase tracking-wider mt-0.5">
+                    ABC Institute of Technology
+                  </span>
+                </div>
               </Link>
               <p className="text-muted-foreground text-sm">
                 Simplifying hostel management with smart technology and seamless experiences.

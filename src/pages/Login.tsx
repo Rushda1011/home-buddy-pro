@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Building2, Eye, EyeOff, Mail, Lock } from "lucide-react"
+import { loginUser } from "@/lib/data-service"
 
 const Login = () => {
   const navigate = useNavigate()
@@ -23,12 +24,24 @@ const Login = () => {
     // Simulate login
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    toast({
-      title: "Welcome back!",
-      description: "You have been logged in successfully.",
-    })
-
-    navigate("/dashboard")
+    try {
+      const response = await loginUser({ email: formData.email, password: formData.password })
+      const userProfile = response.user
+      
+      localStorage.setItem("currentUser", JSON.stringify(userProfile))
+      toast({
+        title: "Welcome back!",
+        description: `You have been logged in as ${userProfile.role}.`,
+      })
+      navigate("/dashboard")
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid email or password.",
+        variant: "destructive"
+      })
+    }
+    
     setIsLoading(false)
   }
 
@@ -38,12 +51,17 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <Link to="/" className="flex items-center gap-2 mb-8">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg gradient-primary shadow-md">
-              <Building2 className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg shadow-md bg-white overflow-hidden">
+              <img src="/logo.png" alt="Logo" className="h-full w-full object-cover" />
             </div>
-            <span className="text-xl font-bold text-foreground">
-              Hostel<span className="text-primary">Hub</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold text-foreground leading-none">
+                Hostel<span className="text-primary">Hub</span>
+              </span>
+              <span className="text-[10px] text-muted-foreground font-medium">
+                Your Home, Away From Your Home
+              </span>
+            </div>
           </Link>
 
           <div className="mb-8">
@@ -51,7 +69,7 @@ const Login = () => {
             <p className="text-muted-foreground">Sign in to your account to continue</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -64,6 +82,7 @@ const Login = () => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="pl-10"
                   required
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -85,6 +104,7 @@ const Login = () => {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="pl-10 pr-10"
                   required
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
@@ -102,11 +122,16 @@ const Login = () => {
           </form>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
             <Link to="/register" className="text-primary font-medium hover:underline">
               Create account
             </Link>
           </p>
+
+          <div className="mt-4 text-center">
+            <Link to="/admin/login" className="text-xs text-muted-foreground hover:text-foreground underline">
+              Admin Login
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/Navbar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -6,64 +6,30 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { 
-  MessageSquare, 
-  Plus, 
-  Clock, 
-  CheckCircle2, 
+import {
+  MessageSquare,
+  Plus,
+  Clock,
+  CheckCircle2,
   AlertCircle,
   Wrench,
   Zap,
   Droplets,
-  Shield
+  Shield,
+  Search,
+  Filter,
+  User
 } from "lucide-react"
 
-type ComplaintStatus = "pending" | "in-progress" | "resolved"
-type ComplaintCategory = "maintenance" | "electrical" | "plumbing" | "security" | "other"
-
-interface Complaint {
-  id: string
-  title: string
-  description: string
-  category: ComplaintCategory
-  status: ComplaintStatus
-  roomNumber: string
-  createdAt: string
-  updatedAt: string
-}
-
-const mockComplaints: Complaint[] = [
-  {
-    id: "1",
-    title: "Water leakage in bathroom",
-    description: "There's a continuous water leak from the bathroom faucet that needs immediate attention.",
-    category: "plumbing",
-    status: "in-progress",
-    roomNumber: "203",
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-16",
-  },
-  {
-    id: "2",
-    title: "AC not working",
-    description: "The air conditioning unit is not cooling properly. Temperature remains high even at lowest setting.",
-    category: "electrical",
-    status: "pending",
-    roomNumber: "105",
-    createdAt: "2024-01-14",
-    updatedAt: "2024-01-14",
-  },
-  {
-    id: "3",
-    title: "Door lock malfunction",
-    description: "The main door lock is stuck and difficult to open. Security concern.",
-    category: "security",
-    status: "resolved",
-    roomNumber: "312",
-    createdAt: "2024-01-10",
-    updatedAt: "2024-01-12",
-  },
-]
+import {
+  getComplaints,
+  addComplaint,
+  updateComplaintStatus,
+  Complaint,
+  ComplaintCategory,
+  ComplaintStatus,
+  getCurrentUser
+} from "@/lib/data-service"
 
 const categoryIcons: Record<ComplaintCategory, React.ReactNode> = {
   maintenance: <Wrench className="h-4 w-4" />,
@@ -81,7 +47,7 @@ const statusConfig: Record<ComplaintStatus, { label: string; variant: "pending" 
 
 const Complaints = () => {
   const { toast } = useToast()
-  const [complaints, setComplaints] = useState<Complaint[]>(mockComplaints)
+  const [complaints, setComplaints] = useState<Complaint[]>([])
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
@@ -89,10 +55,39 @@ const Complaints = () => {
     category: "" as ComplaintCategory | "",
     roomNumber: "",
   })
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState<ComplaintStatus | "all">("all")
+  const [userRole, setUserRole] = useState<"admin" | "student" | "staff">("student")
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    const loadComplaints = async () => {
+      const data = await getComplaints()
+      const user = getCurrentUser()
+      if (user) setUserRole(user.role)
+
+      if (user && user.role === 'student') {
+        setComplaints(data.filter(c => c.studentName === user.name || (!c.studentName && c.roomNumber === user.roomBox)))
+      } else {
+        setComplaints(data)
+      }
+    }
+    loadComplaints()
+  }, [])
+
+  const filteredComplaints = complaints.filter(c => {
+    const matchesSearch = 
+      c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      c.roomNumber.includes(searchQuery) ||
+      (c.studentName && c.studentName.toLowerCase().includes(searchQuery.toLowerCase()))
     
+    const matchesStatus = statusFilter === "all" || c.status === statusFilter
+    
+    return matchesSearch && matchesStatus
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     if (!formData.title || !formData.description || !formData.category || !formData.roomNumber) {
       toast({
         title: "Missing fields",
@@ -102,24 +97,33 @@ const Complaints = () => {
       return
     }
 
-    const newComplaint: Complaint = {
-      id: Date.now().toString(),
+    const user = getCurrentUser()
+    const newComplaint = await addComplaint({
       title: formData.title,
       description: formData.description,
       category: formData.category as ComplaintCategory,
-      status: "pending",
       roomNumber: formData.roomNumber,
-      createdAt: new Date().toISOString().split("T")[0],
-      updatedAt: new Date().toISOString().split("T")[0],
-    }
+      studentName: user?.name,
+    })
 
-    setComplaints([newComplaint, ...complaints])
+    const refreshed = await getComplaints()
+    setComplaints(refreshed)
     setFormData({ title: "", description: "", category: "", roomNumber: "" })
     setShowForm(false)
-    
+
     toast({
       title: "Complaint submitted",
       description: "Your complaint has been registered successfully.",
+    })
+  }
+
+  const handleStatusChange = async (id: string, newStatus: ComplaintStatus) => {
+    await updateComplaintStatus(id, newStatus)
+    const data = await getComplaints()
+    setComplaints(data) // Refresh from store
+    toast({
+      title: "Status Updated",
+      description: `Complaint status changed to ${newStatus}`,
     })
   }
 
@@ -132,12 +136,42 @@ const Complaints = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Complaints</h1>
-            <p className="text-muted-foreground">Submit and track your maintenance requests</p>
+            <p className="text-muted-foreground">
+                {userRole === 'admin' || userRole === 'staff' ? 'Manage and track all student requests' : 'Submit and track your maintenance requests'}
+            </p>
           </div>
-          <Button variant="hero" onClick={() => setShowForm(!showForm)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Complaint
-          </Button>
+          {userRole === 'student' && (
+            <Button variant="hero" onClick={() => setShowForm(!showForm)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Complaint
+            </Button>
+          )}
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by title, room, or student..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 bg-muted/50 p-1 rounded-lg overflow-x-auto">
+            {(["all", "pending", "in-progress", "resolved"] as const).map((status) => (
+              <Button
+                key={status}
+                variant={statusFilter === status ? "secondary" : "ghost"}
+                size="sm"
+                className="capitalize whitespace-nowrap"
+                onClick={() => setStatusFilter(status)}
+              >
+                {status}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* New Complaint Form */}
@@ -156,8 +190,8 @@ const Complaints = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">Category</label>
-                  <Select 
-                    value={formData.category} 
+                  <Select
+                    value={formData.category}
                     onValueChange={(value: ComplaintCategory) => setFormData({ ...formData, category: value })}
                   >
                     <SelectTrigger>
@@ -204,37 +238,84 @@ const Complaints = () => {
 
         {/* Complaints List */}
         <div className="space-y-4">
-          {complaints.map((complaint) => {
-            const status = statusConfig[complaint.status]
-            return (
-              <div
-                key={complaint.id}
-                className="rounded-xl bg-card p-6 shadow-elegant border border-border/50 transition-all duration-300 hover:shadow-lg"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs font-medium">
-                        {categoryIcons[complaint.category]}
-                        <span className="capitalize">{complaint.category}</span>
+          {filteredComplaints.length > 0 ? (
+            filteredComplaints.map((complaint) => {
+              const statusInfo = statusConfig[complaint.status]
+              return (
+                <div
+                  key={complaint.id}
+                  className="rounded-xl bg-card p-6 shadow-elegant border border-border/50 transition-all duration-300 hover:shadow-lg animate-fade-up"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs font-medium">
+                          {categoryIcons[complaint.category]}
+                          <span className="capitalize">{complaint.category}</span>
+                        </div>
+                        <Badge variant={statusInfo.variant} className="gap-1">
+                          {statusInfo.icon}
+                          {statusInfo.label}
+                        </Badge>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                          Room {complaint.roomNumber}
+                        </span>
+                        {userRole === 'admin' && complaint.studentName && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground ml-2">
+                            <User className="h-3 w-3" />
+                            {complaint.studentName}
+                          </div>
+                        )}
                       </div>
-                      <Badge variant={status.variant} className="gap-1">
-                        {status.icon}
-                        {status.label}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">Room {complaint.roomNumber}</span>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{complaint.title}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">{complaint.description}</p>
+
+                      {/* Admin/Staff/Student Action Section */}
+                      {userRole === 'admin' || userRole === 'staff' ? (
+                        <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Update Status:</span>
+                          <Select
+                            value={complaint.status}
+                            onValueChange={(value) => handleStatusChange(complaint.id, value as ComplaintStatus)}
+                          >
+                            <SelectTrigger className="h-9 w-[160px] bg-background">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="in-progress">In Progress</SelectItem>
+                              <SelectItem value="resolved">Resolved</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ) : (
+                        <div className="pt-2 text-xs text-muted-foreground italic">
+                          Status: <span className="font-medium text-foreground capitalize">{complaint.status}</span>
+                        </div>
+                      )}
+
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1">{complaint.title}</h3>
-                    <p className="text-muted-foreground text-sm">{complaint.description}</p>
-                  </div>
-                  <div className="text-right text-sm text-muted-foreground">
-                    <p>Created: {complaint.createdAt}</p>
-                    <p>Updated: {complaint.updatedAt}</p>
+                    <div className="text-right text-xs text-muted-foreground shrink-0 flex flex-col justify-between h-auto sm:h-24">
+                      <div>
+                        <p className="font-medium text-foreground/70">Created</p>
+                        <p>{complaint.createdAt}</p>
+                      </div>
+                      <div className="mt-auto">
+                        <p className="font-medium text-foreground/70">Last Update</p>
+                        <p>{complaint.updatedAt}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })
+          ) : (
+            <div className="text-center py-20 bg-muted/20 rounded-2xl border-2 border-dashed border-border">
+              <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-20" />
+              <h3 className="text-lg font-medium text-foreground/70">No complaints found</h3>
+              <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+            </div>
+          )}
         </div>
       </main>
     </div>

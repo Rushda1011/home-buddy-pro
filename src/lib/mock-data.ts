@@ -14,8 +14,8 @@ export const INITIAL_DATA: AppData = {
   "users": [
     {
       "id": "1",
-      "name": "Rahul Sharma",
-      "email": "rahul.s@example.com",
+      "name": "Riya Sharma",
+      "email": "riya.s@example.com",
       "role": "student",
       "roomBox": "203",
       "joinDate": "2024-01-14",
@@ -27,7 +27,7 @@ export const INITIAL_DATA: AppData = {
       "name": "Priya Patel",
       "email": "priya.p@example.com",
       "role": "student",
-      "roomBox": "205",
+      "roomBox": "102",
       "joinDate": "2024-01-10",
       "status": "active",
       "phone": "+91 98765 43211"
@@ -44,17 +44,17 @@ export const INITIAL_DATA: AppData = {
     },
     {
       "id": "4",
-      "name": "Amit Kumar",
-      "email": "amit.k@example.com",
+      "name": "Amita Kumari",
+      "email": "amita.k@example.com",
       "role": "student",
-      "roomBox": "312",
+      "roomBox": "204",
       "joinDate": "2024-01-15",
       "status": "pending",
       "phone": "+91 98765 43213"
     },
     {
       "id": "staff-1",
-      "name": "John Staff",
+      "name": "Jane Staff",
       "email": "staff@homebuddy.com",
       "role": "staff",
       "roomBox": "-",
@@ -65,7 +65,7 @@ export const INITIAL_DATA: AppData = {
     {
       "id": "6",
       "name": "Airaah",
-      "email": "staff@gmail.com",
+      "email": "airaah@staff.com",
       "role": "staff",
       "roomBox": "Unassigned",
       "joinDate": "2024-03-10",
@@ -77,14 +77,14 @@ export const INITIAL_DATA: AppData = {
       "name": "Shifa",
       "email": "shifa@student.com",
       "role": "student",
-      "roomBox": "Unassigned",
+      "roomBox": "101",
       "joinDate": "2026-03-19",
       "status": "active",
       "phone": "0000000000"
     },
     {
       "id": "4d8c1782-feef-4fbf-9cac-e71011dbb82c",
-      "name": "adhilafathima",
+      "name": "Adhila Fathima",
       "email": "adz@gmail.com",
       "role": "student",
       "roomBox": "101",
@@ -94,7 +94,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       "id": "5faf2124-5ed6-4a04-bbb6-fd32a41da62e",
-      "name": "reetha",
+      "name": "Reetha",
       "email": "reetha@gmail.com",
       "role": "student",
       "roomBox": "401",
@@ -111,9 +111,9 @@ export const INITIAL_DATA: AppData = {
       "rent": 8500,
       "status": "occupied",
       "amenities": ["WiFi", "AC"],
-      "occupants": 1,
-      "maxOccupants": 1,
-      "residents": ["adhilafathima"],
+      "occupants": 2,
+      "maxOccupants": 2,
+      "residents": ["Adhila Fathima", "Shifa"],
       "images": ["https://www.homversity.com/site_assets/img/Property-Photos/3253_46_1669205665.jpg"]
     },
     {
@@ -137,7 +137,7 @@ export const INITIAL_DATA: AppData = {
       "amenities": ["WiFi", "AC", "Study Table"],
       "occupants": 1,
       "maxOccupants": 3,
-      "residents": ["Rahul Sharma"],
+      "residents": ["Riya Sharma"],
       "images": ["https://thumbs.dreamstime.com/b/dorm-room-cheap-hostel-level-beds-european-table-one-chair-41238352.jpg?w=576"]
     },
     {
@@ -149,7 +149,7 @@ export const INITIAL_DATA: AppData = {
       "amenities": ["WiFi", "Study Table"],
       "occupants": 2,
       "maxOccupants": 2,
-      "residents": ["Amit Kumar", "Suresh Raina"],
+      "residents": ["Amita Kumari", "Sureshmi Raina"],
       "images": ["https://www.svnit.ac.in/web/hostels1/mtb/image/room.png"]
     },
     {
@@ -161,7 +161,7 @@ export const INITIAL_DATA: AppData = {
       "amenities": ["WiFi"],
       "occupants": 1,
       "maxOccupants": 2,
-      "residents": ["reetha"],
+      "residents": ["Reetha"],
       "images": ["https://www.homversity.com/site_assets/img/Property-Photos/3253_46_1669205665.jpg"]
     },
     {
@@ -185,7 +185,7 @@ export const INITIAL_DATA: AppData = {
       "category": "electrical",
       "status": "in-progress",
       "roomNumber": "203",
-      "studentName": "Rahul Sharma",
+      "studentName": "Riya Sharma",
       "createdAt": "2024-03-10",
       "updatedAt": "2024-03-12"
     },
@@ -207,7 +207,7 @@ export const INITIAL_DATA: AppData = {
       "category": "other",
       "status": "resolved",
       "roomNumber": "204",
-      "studentName": "Amit Kumar",
+      "studentName": "Amita Kumari",
       "createdAt": "2024-03-05",
       "updatedAt": "2024-03-07"
     },
@@ -218,7 +218,7 @@ export const INITIAL_DATA: AppData = {
       "category": "security",
       "status": "pending",
       "roomNumber": "203",
-      "studentName": "Rahul Sharma",
+      "studentName": "Riya Sharma",
       "createdAt": "2024-03-16",
       "updatedAt": "2024-03-16"
     }
@@ -226,7 +226,7 @@ export const INITIAL_DATA: AppData = {
   "payments": [
     {
       "id": "p1",
-      "studentName": "Rahul Sharma",
+      "studentName": "Riya Sharma",
       "roomNumber": "203",
       "amount": 5000,
       "month": "March",
@@ -248,7 +248,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       "id": "p3",
-      "studentName": "Amit Kumar",
+      "studentName": "Amita Kumari",
       "roomNumber": "204",
       "amount": 6500,
       "month": "March",
@@ -259,7 +259,7 @@ export const INITIAL_DATA: AppData = {
     },
     {
       "id": "p4",
-      "studentName": "Rahul Sharma",
+      "studentName": "Riya Sharma",
       "roomNumber": "203",
       "amount": 5000,
       "month": "February",
@@ -314,10 +314,10 @@ export const INITIAL_DATA: AppData = {
     },
     {
       "id": "s3",
-      "name": "Kuplesh",
+      "name": "Kalpana",
       "role": "Security",
       "phone": "+91 98765 43222",
-      "email": "kuppi@gmail.com",
+      "email": "kalpana@gmail.com",
       "status": "active",
       "shift": "Night",
       "joinDate": "2024-03-01"
@@ -326,9 +326,9 @@ export const INITIAL_DATA: AppData = {
   "visitors": [
     {
       "id": "v1",
-      "visitorName": "Sunil Sharma",
-      "studentName": "Rahul Sharma",
-      "relation": "Father",
+      "visitorName": "Sunila Sharma",
+      "studentName": "Riya Sharma",
+      "relation": "Mother",
       "visitDate": "2024-03-20",
       "checkIn": "10:00",
       "checkOut": "11:30",

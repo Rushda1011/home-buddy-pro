@@ -20,7 +20,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "203",
       "joinDate": "2024-01-14",
       "status": "active",
-      "phone": "+91 98765 43210"
+      "phone": "+91 98765 43210",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "2",
@@ -30,7 +31,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "102",
       "joinDate": "2024-01-10",
       "status": "active",
-      "phone": "+91 98765 43211"
+      "phone": "+91 98765 43211",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "3",
@@ -40,7 +42,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "-",
       "joinDate": "2023-12-01",
       "status": "active",
-      "phone": "+91 98765 43212"
+      "phone": "+91 98765 43212",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "4",
@@ -50,7 +53,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "204",
       "joinDate": "2024-01-15",
       "status": "pending",
-      "phone": "+91 98765 43213"
+      "phone": "+91 98765 43213",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "staff-1",
@@ -60,7 +64,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "-",
       "joinDate": "2024-01-15",
       "status": "active",
-      "phone": "+91 98765 43215"
+      "phone": "+91 98765 43215",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "6",
@@ -70,7 +75,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "Unassigned",
       "joinDate": "2024-03-10",
       "status": "active",
-      "phone": "8495761320"
+      "phone": "8495761320",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "shifa-1",
@@ -80,7 +86,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "101",
       "joinDate": "2026-03-19",
       "status": "active",
-      "phone": "0000000000"
+      "phone": "0000000000",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "4d8c1782-feef-4fbf-9cac-e71011dbb82c",
@@ -90,7 +97,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "101",
       "joinDate": "2024-02-15",
       "status": "active",
-      "phone": "9784521364"
+      "phone": "9784521364",
+      "password": "HomeBuddy@2024!"
     },
     {
       "id": "5faf2124-5ed6-4a04-bbb6-fd32a41da62e",
@@ -100,7 +108,8 @@ export const INITIAL_DATA: AppData = {
       "roomBox": "401",
       "joinDate": "2024-03-18",
       "status": "active",
-      "phone": "9632587410"
+      "phone": "9632587410",
+      "password": "HomeBuddy@2024!"
     }
   ],
   "rooms": [

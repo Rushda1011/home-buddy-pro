@@ -9,6 +9,7 @@ export interface User {
     joinDate: string;
     status: 'active' | 'pending';
     phone: string;
+    password?: string;
 }
 
 export type RoomStatus = "available" | "occupied" | "pending" | "maintenance";
@@ -172,12 +173,18 @@ export const addUser = async (user: Omit<User, 'id' | 'joinDate' | 'status' | 'r
 export const loginUser = async (credentials: { email: string; password: string }) => {
     const data = getDemoData();
     const demoLogin = () => {
-        if (credentials.email === 'admin@homebuddy.com' && credentials.password === 'admin123') {
-            const admin = data.users.find(u => u.email === credentials.email);
-            return { user: admin };
-        }
         const user = data.users.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
-        if (user) return { user }; 
+        
+        if (user && user.password && user.password === credentials.password) {
+            return { user };
+        }
+        
+        // Handle case where user might not have a password yet (shouldn't happen after my update)
+        if (user && !user.password) {
+            console.warn("User record missing password field, allowing login for migration");
+            return { user };
+        }
+
         throw new Error('Invalid email or password');
     };
 

@@ -105,9 +105,26 @@ const IS_DEMO_MODE =
 // Helper to manage persistent state in Demo Mode
 const getDemoData = (): AppData => {
     const saved = localStorage.getItem('demo_data');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            // Migration check: if existing data doesn't have passwords for all users, reset it
+            const hasPasswords = data.users && data.users.every((u: any) => u.password);
+            if (hasPasswords) return data;
+            
+            console.log("Detected outdated demo data, resetting to include latest security updates.");
+        } catch (e) {
+            console.error("Failed to parse demo data, resetting.");
+        }
+    }
     localStorage.setItem('demo_data', JSON.stringify(INITIAL_DATA));
     return INITIAL_DATA;
+};
+
+export const resetDemoData = () => {
+    localStorage.removeItem('demo_data');
+    localStorage.removeItem('currentUser');
+    window.location.reload();
 };
 
 const saveDemoData = (data: AppData) => {

@@ -130,6 +130,22 @@ const AdminLogin = () => {
                         </Button>
                     </form>
 
+                    <div className="mt-6 pt-6 border-t border-border/50 text-center">
+                        <button 
+                            onClick={() => {
+                                localStorage.removeItem('demo_data');
+                                localStorage.removeItem('currentUser');
+                                window.location.reload();
+                            }}
+                            className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2 mx-auto"
+                            type="button"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+                            Reset Demo Data
+                        </button>
+                        <p className="text-[10px] text-muted-foreground/60 mt-1">If login fails, try resetting the demo data</p>
+                    </div>
+
                     <p className="mt-8 text-center text-sm text-muted-foreground">
                         Not an admin?{" "}
                         <Link to="/login" className="text-primary font-medium hover:underline">

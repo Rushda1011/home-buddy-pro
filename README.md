@@ -1,4 +1,15 @@
-# Welcome to your Lovable project
+# Home Buddy Pro (Hostel and PG Management System)
+
+A full-stack web application for managing hostel and PG bookings, rooms and student records.
+
+## Features
+- Role-based authentication (admin and student)
+- Room occupancy tracking
+- Booking management
+- Admin dashboard with automated rent calculation and maintenance reporting
+
+## Tech Stack
+PHP, MySQL, HTML5, CSS3, Bootstrap
 
 ## Project info
 
